@@ -1,12 +1,9 @@
 ﻿using Autofac;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Business.Abstract;
 using Business.Concrete;
-using DataAccess.Concrete.EntityFramework;
+using Core.Utilities.Security.Jwt;
 using DataAccess.Abstract;
-using Core.Entities.Concrete;
+using DataAccess.Concrete.EntityFramework;
 
 namespace Business.DependencyResolvers.Autofac
 {
@@ -17,9 +14,15 @@ namespace Business.DependencyResolvers.Autofac
             builder.RegisterType<UserManager>().As<IUserService>();
             builder.RegisterType<EfUserDal>().As<IUserDal>();
 
+            builder.RegisterType<JwtHelper>().As<ITokenHelper>();
 
             builder.RegisterType<ClaimManager>().As<IClaimService>();
             builder.RegisterType<EfUserOperationDal>().As<IUserOperationDal>();
+
+            builder.RegisterType<GetTokenManager>().As<IGetTokenService>();
+
+            builder.RegisterType<GetAccessTokenManager>().As<IGetAccessTokenService>();
+            builder.RegisterType<EfGetAccessTokenDal>().As<IGetAccessTokenDal>();
 
 
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();

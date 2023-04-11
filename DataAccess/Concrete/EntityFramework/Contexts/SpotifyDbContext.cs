@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Concrete;
+using Entities.Concrete;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Concrete.EntityFramework.Contexts
@@ -13,6 +14,7 @@ namespace DataAccess.Concrete.EntityFramework.Contexts
         public DbSet<User> Users { get; set; }
         public DbSet<Operation> Operations { get; set; }
         public DbSet<UserOperation> UserOperations { get; set; }
+        public DbSet<GetAccessToken> AccessTokens { get; set; }
 
     }
 }

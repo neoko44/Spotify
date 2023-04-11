@@ -19,5 +19,8 @@ namespace Business.Constants
         public static string UserRegistered = "Kullanıcı kayıt oldu";
         public static string AccessTokenCreated = "Access token üretildi";
         public static string RoleAdded = "Rol eklendi";
+
+        public static string AccessTokenError { get; internal set; }
+        public static string AccessTokenNotFound { get; internal set; }
     }
 }

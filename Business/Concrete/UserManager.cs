@@ -20,11 +20,13 @@ namespace Business.Concrete
     {
         IUserDal _userDal;
         ITokenHelper _tokenHelper;
+        IUserOperationDal _operationDal;
 
-        public UserManager(IUserDal userDal, ITokenHelper tokenHelper)
+        public UserManager(IUserDal userDal, ITokenHelper tokenHelper, IUserOperationDal operationDal)
         {
             _userDal = userDal;
             _tokenHelper = tokenHelper;
+            _operationDal = operationDal;
         }
 
         public IResult CheckEmail(string email)
@@ -59,35 +61,35 @@ namespace Business.Concrete
             return _userDal.GetClaims(user);
         }
 
-        public IDataResult<User> Register(RegisterDto registerDto)
+        public IDataResult<AccessToken> Register(RegisterDto registerDto)
         {
             if (registerDto.UserName == null || registerDto.UserName == "")
             {
-                return new ErrorDataResult<User>(Messages.UserNameNull);
+                return new ErrorDataResult<AccessToken>(Messages.UserNameNull);
             }
             if (registerDto.Password == null || registerDto.Password == "")
             {
-                return new ErrorDataResult<User>(Messages.PasswordNull);
+                return new ErrorDataResult<AccessToken>(Messages.PasswordNull);
             }
             if (registerDto.Email == null || registerDto.Email == "")
             {
-                return new ErrorDataResult<User>(Messages.EmailNull);
+                return new ErrorDataResult<AccessToken>(Messages.EmailNull);
             }
             if (registerDto.FirstName == null || registerDto.FirstName == "")
             {
-                return new ErrorDataResult<User>(Messages.FirstNameNull);
+                return new ErrorDataResult<AccessToken>(Messages.FirstNameNull);
             }
             if (registerDto.LastName == null || registerDto.LastName == "")
             {
-                return new ErrorDataResult<User>(Messages.LastNameNull);
+                return new ErrorDataResult<AccessToken>(Messages.LastNameNull);
             }
             if (!CheckEmail(registerDto.Email).Success)
             {
-                return new ErrorDataResult<User>(Messages.MailExists);
+                return new ErrorDataResult<AccessToken>(Messages.MailExists);
             }
             if (!CheckUserName(registerDto.UserName).Success)
             {
-                return new ErrorDataResult<User>(Messages.UserNameExists);
+                return new ErrorDataResult<AccessToken>(Messages.UserNameExists);
             }
 
 
@@ -108,8 +110,22 @@ namespace Business.Concrete
 
             _userDal.Add(user);
 
+            UserOperation userOperation = new()
+            {
+                OperationId = 1,
+                UserId = user.Id
+            };
+
+            _operationDal.Add(userOperation);
+
+
             var accessToken = CreateAccessToken(user);
-            return new SuccessDataResult<User>(user,Messages.UserRegistered.ToString());
+            if(accessToken == null)
+            {
+                return new ErrorDataResult<AccessToken>(Messages.AccessTokenError);
+            }
+
+            return new SuccessDataResult<AccessToken>(accessToken.Data,Messages.UserRegistered.ToString());
         }
 
     }

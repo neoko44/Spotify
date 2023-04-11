@@ -12,7 +12,7 @@ namespace Business.Abstract
 {
     public interface IUserService
     {
-        IDataResult<User> Register(RegisterDto registerDto);
+        IDataResult<AccessToken> Register(RegisterDto registerDto);
         List<Operation> GetClaims(User user);
         IResult CheckEmail(string email);
         IResult CheckUserName(string userName);

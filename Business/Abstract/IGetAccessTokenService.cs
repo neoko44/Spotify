@@ -11,6 +11,6 @@ namespace Business.Abstract
     public interface IGetAccessTokenService
     {
         void Add(GetAccessToken getAccessToken);
-        IDataResult<GetAccessToken> GetLast();
+        Task<IDataResult<List<GetAccessToken>>> GetListAsync();
     }
 }

@@ -18,28 +18,28 @@ namespace Business.Concrete
 {
     public class GetTokenManager : IGetTokenService
     {
-        private string _token;
+        
         IGetAccessTokenService _accessTokenService;
 
-
-        public GetTokenManager(string token, IGetAccessTokenService accessTokenService)
+        public GetTokenManager( IGetAccessTokenService accessTokenService)
         {
-            _token = token;
             _accessTokenService = accessTokenService;
         }
 
         public async Task<IDataResult<GetAccessTokenDto>> GetAccessToken()
         {
-            var getLast = _accessTokenService.GetLast();
+            var getList = await _accessTokenService.GetListAsync();
+            var getLast = getList.Data.Last();
+
             if (getLast != null)
             {
-                if (getLast.Data.CreatedDate.AddHours(1) > DateTime.Now)
+                if (getLast.CreatedDate.AddHours(1) !> DateTime.Now)
                 {
                     GetAccessTokenDto tempGetAccessTokenDto = new()
                     {
-                        access_token = getLast.Data.access_token,
-                        expires_in = getLast.Data.expires_in,
-                        token_type = getLast.Data.token_type
+                        access_token = getLast.access_token,
+                        expires_in = getLast.expires_in,
+                        token_type = getLast.token_type
                     };
 
                     return new SuccessDataResult<GetAccessTokenDto>(tempGetAccessTokenDto);
@@ -62,16 +62,16 @@ namespace Business.Concrete
 
             var response = await client.SendAsync(request);
             var responseContent = JsonConvert.DeserializeObject<GetAccessTokenDto>(response.Content.ReadAsStringAsync().Result);
-            _token = getAccessTokenDto.access_token;
+            
 
             GetAccessToken accessToken = new()
             {
-                access_token = getAccessTokenDto.access_token,
-                token_type = getAccessTokenDto.token_type,
-                expires_in = getAccessTokenDto.expires_in,
+                access_token = responseContent.access_token,
+                token_type = responseContent.token_type,
+                expires_in = responseContent.expires_in,
                 CreatedDate = DateTime.Now
             };
-
+            
             _accessTokenService.Add(accessToken);
             return new SuccessDataResult<GetAccessTokenDto>(responseContent);
         }

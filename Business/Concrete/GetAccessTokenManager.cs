@@ -13,28 +13,26 @@ namespace Business.Concrete
 {
     public class GetAccessTokenManager : IGetAccessTokenService
     {
-        IGetAccessTokenService _accessTokenService;
         IGetAccessTokenDal _accessTokenDal;
 
-        public GetAccessTokenManager(IGetAccessTokenService accessTokenService, IGetAccessTokenDal accessTokenDal)
+        public GetAccessTokenManager( IGetAccessTokenDal accessTokenDal)
         {
-            _accessTokenService = accessTokenService;
             _accessTokenDal = accessTokenDal;
         }
 
         public void Add(GetAccessToken getAccessToken)
         {
-            _accessTokenService.Add(getAccessToken);
+            _accessTokenDal.Add(getAccessToken);
         }
 
-        public IDataResult<GetAccessToken> GetLast()
+        public async Task<IDataResult<List<GetAccessToken>>> GetListAsync()
         {
-            var getLast = _accessTokenDal.GetList().ToList().Last();
-            if (getLast == null)
+            var getList = _accessTokenDal.GetList().ToList();
+            if (getList == null)
             {
-                return new ErrorDataResult<GetAccessToken>(Messages.AccessTokenNotFound);
+                return new ErrorDataResult<List<GetAccessToken>>(Messages.AccessTokenNotFound);
             }
-            return new SuccessDataResult<GetAccessToken>(getLast);
+            return new SuccessDataResult<List<GetAccessToken>>(getList);
         }
     }
 }

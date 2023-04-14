@@ -12,6 +12,8 @@ namespace Core.Entities.Concrete
         public int Id { get; set; }
         public int UserId { get; set; }
         public int OperationId { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime EditedDate { get; set; }
 
     }
 }

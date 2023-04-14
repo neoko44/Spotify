@@ -1,4 +1,6 @@
-﻿using Core.Utilities.Results;
+﻿using Core.Entities.Abstract;
+using Core.Utilities.Results;
+using Entities.Concrete.JsonEntity;
 using Entities.Dtos;
 using System;
 using System.Collections.Generic;

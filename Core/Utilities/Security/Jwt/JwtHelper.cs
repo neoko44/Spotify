@@ -1,15 +1,14 @@
 ﻿using Core.Entities.Concrete;
 using Core.Extensions;
+using Core.Utilities.Results;
 using Core.Utilities.Security.Encryption;
+using Entities.Dtos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Utilities.Security.Jwt
 {
@@ -18,10 +17,12 @@ namespace Core.Utilities.Security.Jwt
         public IConfiguration Configuration { get; }
         TokenOptions _tokenOptions;
         DateTime _accessTokenExpiration;
-        public JwtHelper(IConfiguration configuration)
+        IHttpContextAccessor _contextAccessor;
+        public JwtHelper(IConfiguration configuration, IHttpContextAccessor contextAccessor)
         {
             Configuration = configuration;
             _tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
+            _contextAccessor = contextAccessor;
         }
 
         public AccessToken CreateToken(User user, List<Operation> operationClaims)
@@ -74,8 +75,32 @@ namespace Core.Utilities.Security.Jwt
             claims.AddName($"{user.FirstName} {user.LastName}");
             claims.AddRoles(operationClaims.Select(c => c.Name).ToArray());
             return claims;
-
         }
 
+        public IDataResult<TokenInfoDto> GetTokenInfo()
+        {
+            string token = _contextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+
+            if (token == null)
+            {
+                return new ErrorDataResult<TokenInfoDto>("Kullanıcı bulunamadı");
+            }
+            var DecryptedToken = new JwtSecurityToken(jwtEncodedString: token);
+
+            string Email = DecryptedToken.Claims.First(c => c.Type == "email").Value;
+            string NameSurname = DecryptedToken.Claims.First(c => c.Type == "name").Value;
+            string UserId = DecryptedToken.Claims.First(c => c.Type == "nameid").Value;
+            string Role = DecryptedToken.Claims.First(c => c.Type == "role").Value;
+
+            TokenInfoDto tokenInfoDto = new()
+            {
+                Email = Email,
+                NameSurname = NameSurname,
+                Id = UserId,
+                Role = Role
+            };
+
+            return new SuccessDataResult<TokenInfoDto>(tokenInfoDto);
+        }
     }
 }

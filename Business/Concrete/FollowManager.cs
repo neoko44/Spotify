@@ -117,5 +117,10 @@ namespace Business.Concrete
 
         }
 
+        public IResult FollowUser(int userId)
+        {
+
+        }
+
     }
 }
